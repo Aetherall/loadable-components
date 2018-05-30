@@ -44,6 +44,20 @@ export function walkTree(element, context, visitor) {
       //   https://github.com/facebook/react/blob/master/src/renderers/shared/stack/reconciler/ReactCompositeComponent.js#L66
       if (isComponentClass(Comp)) {
         const instance = new Comp(props, context)
+
+        // / REACT GDS
+        if (typeof Comp.getDerivedStateFromProps === 'function') {
+          const partialState = Comp.getDerivedStateFromProps.call(
+            null,
+            element.props,
+            instance.state,
+          );
+          if (partialState != null) {
+            instance.state = Object.assign({}, instance.state, partialState);
+          }
+        }
+
+
         // In case the user doesn't pass these to super in the constructor
         instance.props = instance.props || props
         instance.context = instance.context || context
